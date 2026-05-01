@@ -103,11 +103,11 @@ function App() {
         </motion.div>
         
         <motion.div className="hero-content" style={{ opacity: heroOpacity }}>
-          <span className="hero-sub">CINEMATIC PRODUCTION HOUSE</span>
+          <span className="hero-sub">UK & INDIA BASED PRODUCTION HOUSE</span>
           <h1 className="hero-title">F8.</h1>
           <div style={{ display: 'flex', gap: '4rem', justifyContent: 'center' }}>
             <span className="mono">EST. 2024</span>
-            <span className="mono">MANCHESTER / UK</span>
+            <span className="mono">MANCHESTER / MUMBAI</span>
           </div>
         </motion.div>
       </section>
@@ -191,8 +191,8 @@ function App() {
           </div>
         </div>
         <div>
-          <span className="mono">LOCATION</span>
-          <p style={{ marginTop: '1rem' }}>MANCHESTER, UK<br/>53.4808° N, 2.2426° W</p>
+          <span className="mono">LOCATIONS</span>
+          <p style={{ marginTop: '1rem' }}>MANCHESTER, UK<br/>MUMBAI, INDIA</p>
         </div>
         <div className="footer-logo">F8.</div>
       </footer>
