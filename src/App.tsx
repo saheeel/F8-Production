@@ -99,7 +99,7 @@ function App() {
             y: parallaxY
           }}
         >
-          <img src="/hero-bg.png" alt="Cinematic" />
+          <img src="hero-bg.png" alt="Cinematic" />
         </motion.div>
         
         <motion.div className="hero-content" style={{ opacity: heroOpacity }}>
@@ -120,10 +120,10 @@ function App() {
         
         <div className="reel-grid">
           {[
-            { title: "NOIR", cat: "FASHION", img: "/portfolio-1.png" },
-            { title: "SILHOUETTE", cat: "COMMERCIAL", img: "/portfolio-2.png" },
-            { title: "APEX", cat: "ATHLETE", img: "/portfolio-3.png" },
-            { title: "STUDIO", cat: "PRODUCTION", img: "/hero-bg.png" }
+            { title: "NOIR", cat: "FASHION", img: "portfolio-1.png" },
+            { title: "SILHOUETTE", cat: "COMMERCIAL", img: "portfolio-2.png" },
+            { title: "APEX", cat: "ATHLETE", img: "portfolio-3.png" },
+            { title: "STUDIO", cat: "PRODUCTION", img: "hero-bg.png" }
           ].map((item, idx) => (
             <motion.div 
               key={idx} 
