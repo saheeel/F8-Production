@@ -2,26 +2,22 @@
   min-height: 100vh;
 }
 
-/* Custom Cursor */
+/* Custom Cursor - Viewfinder Style */
 .custom-cursor {
   position: fixed;
   top: 0;
   left: 0;
-  width: 20px;
-  height: 20px;
+  width: 12px;
+  height: 12px;
   background: white;
   border-radius: 50%;
   pointer-events: none;
   z-index: 9999;
   mix-blend-mode: difference;
-  transition: width 0.3s, height 0.3s, background 0.3s;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 0.5rem;
-  color: black;
-  text-transform: uppercase;
   opacity: 0;
 }
 
@@ -29,11 +25,38 @@
   opacity: 1;
 }
 
+/* Hero Mode - Viewfinder corners */
 .custom-cursor.hero-mode {
-  width: 100px;
-  height: 100px;
-  background: white;
+  width: 60px;
+  height: 60px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 0; /* Square viewfinder */
   mix-blend-mode: normal;
+}
+
+.custom-cursor.hero-mode::before,
+.custom-cursor.hero-mode::after {
+  content: "";
+  position: absolute;
+  background: white;
+}
+
+/* Crosshair lines */
+.custom-cursor.hero-mode::before {
+  width: 1px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.custom-cursor.hero-mode::after {
+  width: 20px;
+  height: 1px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 /* Fixed Corner Navigation */
@@ -80,7 +103,7 @@
 /* Hero Section */
 .hero {
   background: #000;
-  cursor: none; /* Hide default cursor on hero */
+  cursor: none;
 }
 
 .hero-visual {
@@ -215,8 +238,4 @@
 @media (max-width: 1024px) {
   .custom-cursor { display: none; }
   .hero { cursor: auto; }
-  .reel-item { flex: 0 0 80vw; }
-  .service-row { grid-template-columns: 1fr; gap: 1rem; }
-  .footer-arc { grid-template-columns: 1fr; }
-  .footer-logo { font-size: 25vw; }
 }

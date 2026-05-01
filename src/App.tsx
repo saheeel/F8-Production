@@ -1,21 +1,46 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import './App.css';
+
+// Text Reveal Component for the Philosophy section
+const RevealText = ({ text }: { text: string }) => {
+  const containerRef = useRef<HTMLHeadingElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start 70%", "start 20%"]
+  });
+
+  const words = useMemo(() => text.split(" "), [text]);
+
+  return (
+    <h2 ref={containerRef} className="philosophy-huge">
+      {words.map((word, i) => {
+        const start = i / words.length;
+        const end = start + 1 / words.length;
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const opacity = useTransform(scrollYProgress, [start, end], [0.1, 1]);
+        
+        return (
+          <motion.span key={i} style={{ opacity, display: 'inline-block', marginRight: '0.25em' }}>
+            {word}
+          </motion.span>
+        );
+      })}
+    </h2>
+  );
+};
 
 function App() {
   const [isHeroHovered, setIsHeroHovered] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
   
-  // Mouse position for cursor and parallax
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   
-  // Smoother springs for parallax
   const smoothMouseX = useSpring(mouseX, { stiffness: 50, damping: 20 });
   const smoothMouseY = useSpring(mouseY, { stiffness: 50, damping: 20 });
   
-  // Parallax transforms for hero image
   const parallaxX = useTransform(smoothMouseX, [0, window.innerWidth], [-20, 20]);
   const parallaxY = useTransform(smoothMouseY, [0, window.innerHeight], [-20, 20]);
 
@@ -31,8 +56,7 @@ function App() {
       mouseY.set(e.clientY);
       
       if (cursorRef.current) {
-        // Offset by cursor half-width/height
-        const size = isHeroHovered ? 50 : 10;
+        const size = isHeroHovered ? 30 : 6;
         cursorRef.current.style.transform = `translate3d(${e.clientX - size}px, ${e.clientY - size}px, 0)`;
       }
     };
@@ -52,13 +76,10 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* Custom Cursor */}
       <div 
         ref={cursorRef}
         className={`custom-cursor active ${isHeroHovered ? 'hero-mode' : ''}`}
-      >
-        {isHeroHovered && <span>SCROLL</span>}
-      </div>
+      />
 
       <nav className="nav-fixed">
         <div className="logo">F8©</div>
@@ -152,15 +173,7 @@ function App() {
       </section>
 
       <section className="philosophy-panel">
-        <motion.h2 
-          className="philosophy-huge"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeInUp}
-        >
-          WE BELIEVE THAT EVERY FRAME IS A DECISION. WE DON'T JUST CAPTURE MOTION; WE CAPTURE EMOTION.
-        </motion.h2>
+        <RevealText text="WE BELIEVE THAT EVERY FRAME IS A DECISION. WE DON'T JUST CAPTURE MOTION; WE CAPTURE EMOTION." />
       </section>
 
       <footer className="footer-arc">
