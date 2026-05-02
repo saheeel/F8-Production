@@ -31,8 +31,78 @@ const RevealText = ({ text }: { text: string }) => {
   );
 };
 
+const YouTubePlayer = ({ 
+  id, 
+  title, 
+  type = 'video',
+  isPlaying,
+  onPlay
+}: { 
+  id: string, 
+  title: string, 
+  type?: 'video' | 'short',
+  isPlaying: boolean,
+  onPlay: () => void
+}) => {
+  return (
+    <div className={`video-wrapper ${type}`}>
+      {!isPlaying ? (
+        <div className="video-placeholder" onClick={onPlay}>
+          <img 
+            src={`https://img.youtube.com/vi/${id}/maxresdefault.jpg`} 
+            alt={title} 
+            loading="lazy"
+            onLoad={(e) => {
+              // YouTube returns a 120x90 placeholder if maxresdefault doesn't exist
+              if ((e.target as HTMLImageElement).naturalWidth === 120) {
+                (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+              }
+            }}
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+            }}
+          />
+          <div className="video-overlay">
+            <div className="play-button">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 5V19L19 12L8 5Z" fill="currentColor" />
+              </svg>
+            </div>
+          </div>
+          <div className="viewfinder-overlay">
+            <div className="corner top-left"></div>
+            <div className="corner top-right"></div>
+            <div className="corner bottom-left"></div>
+            <div className="corner bottom-right"></div>
+            <div className="rec-dot">REC</div>
+          </div>
+        </div>
+      ) : (
+        <div className="iframe-container">
+          <iframe
+            src={`https://www.youtube.com/embed/${id}?autoplay=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3`}
+            title={title}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+          <div className="viewfinder-overlay persistent">
+            <div className="corner top-left"></div>
+            <div className="corner top-right"></div>
+            <div className="corner bottom-left"></div>
+            <div className="corner bottom-right"></div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 function App() {
   const [isHeroHovered, setIsHeroHovered] = useState(false);
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  const [showAllWorks, setShowAllWorks] = useState(false);
+  const [showAllShorts, setShowAllShorts] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
   
   const mouseX = useMotionValue(0);
@@ -82,8 +152,11 @@ function App() {
       />
 
       <nav className="nav-fixed">
-        <div className="logo">F8©</div>
-        <div className="menu-trigger">INDEX / WORK</div>
+        <div className="logo" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} style={{cursor: 'pointer'}}>F8©</div>
+        <div className="nav-links">
+          <div className="menu-trigger" onClick={() => document.querySelector('.reel-section')?.scrollIntoView({behavior: 'smooth'})}>PROJECTS</div>
+          <div className="menu-trigger" onClick={() => window.open('https://wa.me/919746752566', '_blank')}>CONTACT</div>
+        </div>
       </nav>
 
       <section 
@@ -112,40 +185,133 @@ function App() {
         </motion.div>
       </section>
 
+      <section className="identity-section container">
+        <div className="identity-grid">
+          <motion.div 
+            className="identity-text"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
+          >
+            <span className="mono">00 — IDENTITY</span>
+            <h2 className="identity-title">THE VISION.</h2>
+            <div className="identity-reveal-wrapper">
+              <RevealText text="F8 Production is a boutique cinematic studio born from the desire to push visual boundaries. We don't just record; we architect emotion through lens and light. Based in Manchester and Bangalore, we serve a global clientele with a unified commitment to uncompromising aesthetic quality." />
+            </div>
+          </motion.div>
+          <motion.div 
+            className="identity-stats"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
+          >
+            <div className="stat-item">
+              <span className="mono">EST.</span>
+              <span className="stat-value">2023</span>
+            </div>
+            <div className="stat-item">
+              <span className="mono">LOCATIONS</span>
+              <span className="stat-value">UK / IND</span>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       <section className="reel-section">
-        <div className="container" style={{ marginBottom: '5rem' }}>
+        <div className="container" style={{ marginBottom: '5rem', padding: '0 4vw' }}>
           <span className="mono">01 — PROJECT REEL</span>
           <h2 style={{ fontSize: '10vw', lineHeight: 0.9 }}>THE WORK.</h2>
         </div>
         
         <div className="reel-grid">
           {[
-            { title: "NOIR", cat: "FASHION", img: "portfolio-1.png" },
-            { title: "SILHOUETTE", cat: "COMMERCIAL", img: "portfolio-2.png" },
-            { title: "APEX", cat: "ATHLETE", img: "portfolio-3.png" },
-            { title: "STUDIO", cat: "PRODUCTION", img: "hero-bg.png" }
-          ].map((item, idx) => (
+            { id: 'aFuFnby3_wo', title: 'EDITING SERVICES', cat: 'POST-PRODUCTION' },
+            { id: 'i6_OUokibYk', title: 'CINEMATIC REEL', cat: 'DIRECTION' },
+            { id: 'ASidqFXPzzY', title: 'BRAND STORY', cat: 'COMMERCIAL' },
+            { id: 'bMPikiNr6sk', title: 'VISUAL NARRATIVE', cat: 'FASHION' }
+          ].slice(0, showAllWorks ? undefined : 2).map((item, idx) => (
             <motion.div 
-              key={idx} 
-              className="reel-item"
-              initial={{ opacity: 0, x: 100 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              key={item.id} 
+              className="reel-item video"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1, duration: 1 }}
               viewport={{ once: true }}
             >
-              <img src={item.img} alt={item.title} />
+              <YouTubePlayer 
+                id={item.id} 
+                title={item.title} 
+                isPlaying={activeVideoId === item.id}
+                onPlay={() => setActiveVideoId(item.id)}
+              />
               <div className="reel-info">
                 <span className="mono" style={{ color: 'white' }}>{item.cat}</span>
-                <h3 style={{ fontSize: '3rem', color: 'white' }}>{item.title}</h3>
+                <h3 style={{ fontSize: '2.5rem', color: 'white', marginTop: '0.5rem' }}>{item.title}</h3>
               </div>
             </motion.div>
           ))}
         </div>
+
+        {!showAllWorks && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
+            <button className="view-more-btn" onClick={() => setShowAllWorks(true)}>
+              VIEW MORE
+            </button>
+          </div>
+        )}
+
+        <div className="container" style={{ marginTop: '10rem', marginBottom: '5rem', padding: '0 4vw' }}>
+          <span className="mono">02 — VERTICALS / SHORTS</span>
+          <h2 style={{ fontSize: '8vw', lineHeight: 0.9 }}>QUICK CUTS.</h2>
+        </div>
+
+        <div className="shorts-grid">
+          {[
+            { id: 'CY6eV037cQM', title: 'STREET STYLE', cat: 'SHORTS' },
+            { id: '0E9dvrVVo5w', title: 'URBAN FLOW', cat: 'SHORTS' },
+            { id: '3VT2W7ok3oc', title: 'MOTION CAPTURE', cat: 'SHORTS' },
+            { id: 'PKqrxlI3FKY', title: 'BEHIND THE SCENES', cat: 'BTS' },
+            { id: 'ZULwzv6Iu1Q', title: 'SET LIFE', cat: 'BTS' },
+            { id: '6V_6PG4zm-M', title: 'PRODUCTION HIGHLIGHTS', cat: 'VIDEO' },
+            { id: 'RYkrCfyEg-A', title: 'VISUAL SNIPPET', cat: 'SHORTS' }
+          ].slice(0, showAllShorts ? undefined : 4).map((item, idx) => (
+            <motion.div 
+              key={item.id} 
+              className="reel-item short"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ delay: idx * 0.05, duration: 0.8 }}
+              viewport={{ once: true }}
+            >
+              <YouTubePlayer 
+                id={item.id} 
+                title={item.title} 
+                type="short" 
+                isPlaying={activeVideoId === item.id}
+                onPlay={() => setActiveVideoId(item.id)}
+              />
+              <div className="reel-info">
+                <span className="mono" style={{ color: 'white', fontSize: '0.7rem' }}>{item.cat}</span>
+                <h3 style={{ fontSize: '1.2rem', color: 'white', marginTop: '0.2rem' }}>{item.title}</h3>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {!showAllShorts && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
+            <button className="view-more-btn" onClick={() => setShowAllShorts(true)}>
+              VIEW MORE
+            </button>
+          </div>
+        )}
       </section>
 
-      <section className="container section" style={{ borderTop: 'none' }}>
+      <section className="container section" style={{ borderTop: 'none', padding: '10rem 4vw' }}>
         <div style={{ marginBottom: '10rem' }}>
-          <span className="mono">02 — CAPABILITIES</span>
+          <span className="mono">03 — CAPABILITIES</span>
           <h2 style={{ fontSize: '10vw', lineHeight: 0.9 }}>EXPERTISE.</h2>
         </div>
 
@@ -177,10 +343,22 @@ function App() {
       </section>
 
       <footer className="footer-arc">
-        <div>
-          <span className="mono">CONNECT</span>
-          <p style={{ fontSize: '2rem', marginTop: '1rem', fontWeight: 900 }}>HELLO@F8.COM</p>
-          <p style={{ fontSize: '2rem', fontWeight: 900 }}>+44 700 000 000</p>
+        <div className="footer-group">
+          <span className="mono footer-label">CONNECT</span>
+          <div className="footer-links">
+            <p 
+              className="footer-link"
+              onClick={() => window.open('https://wa.me/919746752566', '_blank')}
+            >
+              WHATSAPP US
+            </p>
+            <p 
+              className="footer-link"
+              onClick={() => window.location.href = 'mailto:HELLO@F8.COM'}
+            >
+              HELLO@F8.COM
+            </p>
+          </div>
         </div>
         <div>
           <span className="mono">FOLLOW</span>
