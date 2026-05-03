@@ -1,7 +1,9 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import type { Variants } from 'framer-motion';
 import './App.css';
+import ServiceDetail from './ServiceDetail';
 
 // Text Reveal Component for the Philosophy section
 const RevealText = ({ text }: { text: string }) => {
@@ -98,12 +100,13 @@ const YouTubePlayer = ({
   );
 };
 
-function App() {
+function MainApp() {
   const [isHeroHovered, setIsHeroHovered] = useState(false);
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [showAllWorks, setShowAllWorks] = useState(false);
   const [showAllShorts, setShowAllShorts] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -117,6 +120,14 @@ function App() {
   const { scrollYProgress } = useScroll();
   const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 1.2]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+
+  useEffect(() => {
+    const savedPos = sessionStorage.getItem('scrollPos');
+    if (savedPos) {
+      window.scrollTo(0, parseInt(savedPos));
+      sessionStorage.removeItem('scrollPos');
+    }
+  }, []);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', 'dark');
@@ -177,9 +188,9 @@ function App() {
         
         <motion.div className="hero-content" style={{ opacity: heroOpacity }}>
           <span className="hero-sub">MANCHESTER & BANGALORE BASED</span>
-          <h1 className="hero-title">F8.</h1>
+          <h1 className="hero-title" data-text="F8.">F8.</h1>
           <div style={{ display: 'flex', gap: '4rem', justifyContent: 'center' }}>
-            <span className="mono">EST. 2024</span>
+            <span className="mono">EST. 2019</span>
             <span className="mono">UK / INDIA</span>
           </div>
         </motion.div>
@@ -209,7 +220,7 @@ function App() {
           >
             <div className="stat-item">
               <span className="mono">EST.</span>
-              <span className="stat-value">2023</span>
+              <span className="stat-value">2019</span>
             </div>
             <div className="stat-item">
               <span className="mono">LOCATIONS</span>
@@ -230,7 +241,9 @@ function App() {
             { id: 'aFuFnby3_wo', title: 'EDITING SERVICES', cat: 'POST-PRODUCTION' },
             { id: 'i6_OUokibYk', title: 'CINEMATIC REEL', cat: 'DIRECTION' },
             { id: 'ASidqFXPzzY', title: 'BRAND STORY', cat: 'COMMERCIAL' },
-            { id: 'bMPikiNr6sk', title: 'VISUAL NARRATIVE', cat: 'FASHION' }
+            { id: 'bMPikiNr6sk', title: 'VISUAL NARRATIVE', cat: 'FASHION' },
+            { id: '9sSTERjDYNI', title: 'URBAN CINEMA', cat: 'PRODUCTION' },
+            { id: 'YA1zgduaGoY', title: 'MOTION SHOWCASE', cat: 'ADVERTISING' }
           ].slice(0, showAllWorks ? undefined : 2).map((item, idx) => (
             <motion.div 
               key={item.id} 
@@ -269,13 +282,13 @@ function App() {
 
         <div className="shorts-grid">
           {[
-            { id: 'CY6eV037cQM', title: 'STREET STYLE', cat: 'SHORTS' },
-            { id: '0E9dvrVVo5w', title: 'URBAN FLOW', cat: 'SHORTS' },
-            { id: '3VT2W7ok3oc', title: 'MOTION CAPTURE', cat: 'SHORTS' },
+            { id: '6V_6PG4zm-M', title: 'PRODUCTION HIGHLIGHTS', cat: 'VIDEO' },
             { id: 'PKqrxlI3FKY', title: 'BEHIND THE SCENES', cat: 'BTS' },
             { id: 'ZULwzv6Iu1Q', title: 'SET LIFE', cat: 'BTS' },
-            { id: '6V_6PG4zm-M', title: 'PRODUCTION HIGHLIGHTS', cat: 'VIDEO' },
-            { id: 'RYkrCfyEg-A', title: 'VISUAL SNIPPET', cat: 'SHORTS' }
+            { id: 'RYkrCfyEg-A', title: 'VISUAL SNIPPET', cat: 'SHORTS' },
+            { id: 'CY6eV037cQM', title: 'STREET STYLE', cat: 'SHORTS' },
+            { id: '0E9dvrVVo5w', title: 'URBAN FLOW', cat: 'SHORTS' },
+            { id: '3VT2W7ok3oc', title: 'MOTION CAPTURE', cat: 'SHORTS' }
           ].slice(0, showAllShorts ? undefined : 4).map((item, idx) => (
             <motion.div 
               key={item.id} 
@@ -317,10 +330,10 @@ function App() {
 
         <div className="expertise-list">
           {[
-            { title: "BRAND FILMS", desc: "NARRATIVE CINEMATOGRAPHY FOR GLOBAL BRANDS." },
-            { title: "ADVERTISING", desc: "HIGH-IMPACT VISUAL ASSETS FOR ALL PLATFORMS." },
-            { title: "POST-PRODUCTION", desc: "PREMIUM COLOR GRADING AND MOTION DESIGN." },
-            { title: "DIRECTION", desc: "CREATIVE STRATEGY FROM CONCEPT TO COMPLETION." }
+            { title: "BRAND FILMS", desc: "NARRATIVE CINEMATOGRAPHY FOR GLOBAL BRANDS.", slug: 'brand-films' },
+            { title: "ADVERTISING", desc: "HIGH-IMPACT VISUAL ASSETS FOR ALL PLATFORMS.", slug: 'advertising' },
+            { title: "POST-PRODUCTION", desc: "PREMIUM COLOR GRADING AND MOTION DESIGN.", slug: 'post-production' },
+            { title: "DIRECTION", desc: "CREATIVE STRATEGY FROM CONCEPT TO COMPLETION.", slug: 'direction' }
           ].map((item, idx) => (
             <motion.div 
               key={idx} 
@@ -329,6 +342,11 @@ function App() {
               whileInView="visible"
               viewport={{ once: true }}
               variants={fadeInUp}
+              onClick={() => {
+                sessionStorage.setItem('scrollPos', window.scrollY.toString());
+                navigate(`/service/${item.slug}`);
+              }}
+              style={{ cursor: 'pointer' }}
             >
               <span className="mono">0{idx + 1}</span>
               <h3 className="service-title">{item.title}</h3>
@@ -352,20 +370,12 @@ function App() {
             >
               WHATSAPP US
             </p>
-            <p 
-              className="footer-link"
-              onClick={() => window.location.href = 'mailto:HELLO@F8.COM'}
-            >
-              HELLO@F8.COM
-            </p>
           </div>
         </div>
         <div>
           <span className="mono">FOLLOW</span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem' }}>
             <a href="#" className="mono">INSTAGRAM</a>
-            <a href="#" className="mono">TWITTER</a>
-            <a href="#" className="mono">LINKEDIN</a>
           </div>
         </div>
         <div>
@@ -375,6 +385,19 @@ function App() {
         <div className="footer-logo">F8.</div>
       </footer>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AnimatePresence mode="wait">
+        <Routes>
+          <Route path="/" element={<MainApp />} />
+          <Route path="/service/:slug" element={<ServiceDetail />} />
+        </Routes>
+      </AnimatePresence>
+    </Router>
   );
 }
 
